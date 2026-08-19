@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Hyperlocal Supply Chain{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>Admin Dashboard</h2>
+
+    <div class="dashboard-actions">
+        <a href="/admin/users" class="btn btn-primary">Manage Users</a>
+        <a href="/admin/wholesalers" class="btn btn-secondary">Manage Wholesalers</a>
+        <a href="/admin/products" class="btn btn-info">Manage Products</a>
+        <a href="/admin/orders" class="btn btn-warning">Manage Orders</a>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+{% endblock %}

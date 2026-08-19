@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Wholesaler Dashboard - Hyperlocal Supply Chain{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>Wholesaler Dashboard</h2>
+    <p class="welcome-msg">Welcome, Wholesaler!</p>
+
+    <div class="dashboard-actions">
+        <a href="/wholesaler/products" class="btn btn-primary">My Products</a>
+        <a href="/wholesaler/add-product" class="btn btn-success">+ Add Product</a>
+        <a href="/wholesaler/orders" class="btn btn-info">Incoming Orders</a>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+{% endblock %}

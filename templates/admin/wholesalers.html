@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Wholesalers - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>Manage Wholesalers</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Business Name</th>
+                <th>Contact Email</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Metro Wholesalers</td>
+                <td>metro@example.com</td>
+                <td><span class="badge badge-success">Approved</span></td>
+                <td>
+                    <a href="/admin/wholesaler/toggle/1" class="btn btn-warning btn-sm">Disable</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

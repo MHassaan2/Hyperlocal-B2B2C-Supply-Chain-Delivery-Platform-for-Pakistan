@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Hyperlocal Supply Chain{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <nav>
+    <div class="brand">
+      <a href="/" style="font-size: 1.25rem; font-weight: bold;">Hyperlocal Platform</a>
+    </div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Flash / Error Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+        {% if category == 'error' %}{% else %}{% endif %} {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <footer>
+    <p>&copy; Hyperlocal B2B2C Supply Chain & Delivery Platform for Pakistan</p>
+  </footer>
+
+</body>
+
+</html>

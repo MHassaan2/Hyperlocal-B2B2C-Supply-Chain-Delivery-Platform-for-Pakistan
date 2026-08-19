@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - Shopkeeper{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <h2>My Orders</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>#ORD-1001</td>
+                <td>2026-08-19</td>
+                <td>Rs. 360</td>
+                <td><span class="badge badge-success">Delivered</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Incoming Orders - Wholesaler{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <h2>Incoming Orders</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer Name</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>#ORD-1001</td>
+                <td>Ali Ahmed</td>
+                <td>Rs. 360</td>
+                <td><span class="badge badge-warning">Pending</span></td>
+                <td>
+                    <a href="/wholesaler/order/update/1?status=Dispatched" class="btn btn-primary btn-sm">Mark
+                        Dispatched</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

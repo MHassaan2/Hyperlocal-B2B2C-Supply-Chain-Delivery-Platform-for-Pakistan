@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}My Products - Wholesaler{% endblock %}
+
+{% block content %}
+<div class="products-container">
+    <h2>My Products</h2>
+    <a href="/wholesaler/add-product" class="btn btn-success">+ Add New Product</a>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Sugar 1kg</td>
+                <td>Rs. 180</td>
+                <td>50</td>
+                <td>
+                    <a href="/wholesaler/edit-product/1" class="btn btn-warning">Edit</a>
+                    <a href="/wholesaler/delete-product/1" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Tea 250g</td>
+                <td>Rs. 320</td>
+                <td>20</td>
+                <td>
+                    <a href="/wholesaler/edit-product/2" class="btn btn-warning">Edit</a>
+                    <a href="/wholesaler/delete-product/2" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

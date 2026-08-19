@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Orders - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>Manage Orders</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Shopkeeper</th>
+                <th>Wholesaler</th>
+                <th>Total</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>#ORD-1001</td>
+                <td>Ali Ahmed</td>
+                <td>Metro Wholesalers</td>
+                <td>Rs. 360</td>
+                <td><span class="badge badge-success">Delivered</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

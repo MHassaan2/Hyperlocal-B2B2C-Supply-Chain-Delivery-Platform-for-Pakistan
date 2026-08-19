@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Products - Shopkeeper{% endblock %}
+
+{% block content %}
+<div class="products-container">
+    <h2>Available Products</h2>
+
+    <!-- Search Form -->
+    <form method="GET" action="/products" class="search-form">
+        <input type="text" name="search" placeholder="Search products (e.g. Sugar, Tea)...">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <!-- Product Grid -->
+    <div class="product-cards">
+        <!-- Sample Product 1 -->
+        <div class="card">
+            <h3>Sugar 1kg</h3>
+            <p>Fine quality sugar</p>
+            <p><strong>Price:</strong> Rs. 180</p>
+            <p><strong>Stock:</strong> 50</p>
+            <form method="POST" action="/cart/add">
+                <input type="hidden" name="product_id" value="1">
+                <button type="submit" class="btn btn-success">Add to Cart</button>
+            </form>
+        </div>
+
+        <!-- Sample Product 2 -->
+        <div class="card">
+            <h3>Tea 250g</h3>
+            <p>Premium tea</p>
+            <p><strong>Price:</strong> Rs. 320</p>
+            <p><strong>Stock:</strong> 20</p>
+            <form method="POST" action="/cart/add">
+                <input type="hidden" name="product_id" value="2">
+                <button type="submit" class="btn btn-success">Add to Cart</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
