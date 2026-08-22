@@ -5,7 +5,7 @@
 {% block content %}
 <div class="orders-container">
     <h2>Incoming Orders</h2>
-
+    {% if orders %}
     <table class="data-table">
         <thead>
             <tr>
@@ -17,17 +17,22 @@
             </tr>
         </thead>
         <tbody>
+            {% for order in orders %}
             <tr>
-                <td>#ORD-1001</td>
-                <td>Ali Ahmed</td>
-                <td>Rs. 360</td>
+                <td>{{ order.id }}</td>
+                <td>{{ order.customer_name }}</td>
+                <td>Rs. {{ order.total_amount }}</td>
                 <td><span class="badge badge-warning">Pending</span></td>
                 <td>
                     <a href="/wholesaler/order/update/1?status=Dispatched" class="btn btn-primary btn-sm">Mark
                         Dispatched</a>
                 </td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <p>No incoming orders at the moment.</p>
+    {% endif %}
 </div>
 {% endblock %}

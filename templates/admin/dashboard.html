@@ -3,8 +3,12 @@
 {% block title %}Admin Dashboard - Hyperlocal Supply Chain{% endblock %}
 
 {% block content %}
+
 <div class="dashboard-container">
     <h2>Admin Dashboard</h2>
+    <p class="welcome-msg">
+    Welcome, {{ session["name"] }}!
+    </p>
 
     <div class="dashboard-actions">
         <a href="/admin/users" class="btn btn-primary">Manage Users</a>
