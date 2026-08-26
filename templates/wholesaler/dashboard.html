@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Wholesaler Dashboard - Hyperlocal Supply Chain{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>Wholesaler Dashboard</h2>
+    <p class="welcome-msg">Welcome, Wholesaler!</p>
+
+    <div class="dashboard-actions">
+        <a href="{{ url_for('wholesaler_products') }}" class="btn btn-primary">My Products</a>
+        <a href="{{ url_for('add_product') }}" class="btn btn-success">+ Add Product</a>
+        <a href="{{ url_for('wholesaler_orders') }}" class="btn btn-info">Incoming Orders</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+{% endblock %}

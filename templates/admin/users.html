@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>Manage Users</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Ali Ahmed</td>
+                <td>ali@example.com</td>
+                <td>Shopkeeper</td>
+                <td>
+                    <a href="/admin/user/delete/1" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

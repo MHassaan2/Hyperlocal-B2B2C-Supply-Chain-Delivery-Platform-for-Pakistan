@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Products - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>Manage Products</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Wholesaler</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>101</td>
+                <td>Sugar 1kg</td>
+                <td>Rs. 180</td>
+                <td>Metro Wholesalers</td>
+                <td>
+                    <a href="/admin/product/delete/101" class="btn btn-danger btn-sm">Remove</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Incoming Orders - Wholesaler{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <h2>Incoming Orders</h2>
+    {% if orders %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer Name</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.customer_name }}</td>
+                <td>Rs. {{ order.total_amount }}</td>
+                <td><span class="badge badge-warning">Pending</span></td>
+                <td>
+                   <a href="{{ url_for('update_order', order_id=order.id, status='Dispatched') }}"
+                      class="btn btn-primary btn-sm">
+                      Mark Dispatched
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No incoming orders at the moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

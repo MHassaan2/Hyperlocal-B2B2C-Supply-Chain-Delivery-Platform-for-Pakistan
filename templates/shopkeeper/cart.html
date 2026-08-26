@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}My Cart - Hyperlocal Supply Chain{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <h2>Shopping Cart</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Sugar 1kg</td>
+                <td>Rs. 180</td>
+                <td>2</td>
+                <td>Rs. 360</td>
+                <td>
+                    <a href="/cart/remove/1" class="btn btn-danger btn-sm">Remove</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="cart-summary">
+        <h3>Total Amount: Rs. 360</h3>
+        <a href="/checkout" class="btn btn-success">Proceed to Checkout</a>
+    </div>
+</div>
+{% endblock %}
