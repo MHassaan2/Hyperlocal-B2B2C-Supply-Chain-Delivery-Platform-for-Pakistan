@@ -44,8 +44,7 @@ main {
 }
 
 /* Card & Form Containers */
-.card,
-.form-container {
+.card, .form-container {
     background: #ffffff;
     border: 1px solid #dee2e6;
     border-radius: 6px;
@@ -69,8 +68,8 @@ main {
     font-weight: 600;
 }
 
-.form-group input,
-.form-group select,
+.form-group input, 
+.form-group select, 
 .form-group textarea {
     width: 100%;
     padding: 0.6rem;
@@ -135,8 +134,7 @@ table {
     margin-top: 1rem;
 }
 
-th,
-td {
+th, td {
     padding: 0.75rem;
     border: 1px solid #dee2e6;
     text-align: left;
