@@ -24,8 +24,10 @@
                 <td>Rs. {{ order.total_amount }}</td>
                 <td><span class="badge badge-warning">Pending</span></td>
                 <td>
-                    <a href="/wholesaler/order/update/1?status=Dispatched" class="btn btn-primary btn-sm">Mark
-                        Dispatched</a>
+                   <a href="{{ url_for('update_order', order_id=order.id, status='Dispatched') }}"
+                      class="btn btn-primary btn-sm">
+                      Mark Dispatched
+                    </a>
                 </td>
             </tr>
             {% endfor %}
