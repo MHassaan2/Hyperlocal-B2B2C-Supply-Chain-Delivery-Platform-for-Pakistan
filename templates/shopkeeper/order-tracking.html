@@ -1,0 +1,294 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Track Order{% endblock %}
+
+{% block content %}
+
+<div class="container tracking-container">
+
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Track Your Order</h2>
+        <p class="text-muted">
+            Enter your order ID to check the current order status.
+        </p>
+    </div>
+
+    <!-- Search Order -->
+    <div class="card p-4 mb-4">
+
+        <form method="GET" action="{{ url_for('track_order') }}" class="row g-3">
+
+            <div class="col-md-9">
+                <input
+                    type="number"
+                    name="order_id"
+                    class="form-control form-control-lg"
+                    placeholder="Enter Order ID"
+                    value="{{ request.args.get('order_id', '') }}"
+                    required
+                >
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    Track
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    {% if order %}
+
+    <!-- Order Information -->
+    <div class="card p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+
+            <div>
+                <h5 class="mb-1">
+                    Order #{{ order.id }}
+                </h5>
+
+                <span class="text-muted">
+                    Placed on {{ order.created_at }}
+                </span>
+            </div>
+
+            <div>
+
+                {% if order.status == "Pending" %}
+                    <span class="badge bg-warning text-dark fs-6 p-2">
+                        Pending
+                    </span>
+
+                {% elif order.status == "Confirmed" %}
+                    <span class="badge bg-info text-dark fs-6 p-2">
+                        Confirmed
+                    </span>
+
+                {% elif order.status == "Dispatched" %}
+                    <span class="badge bg-primary fs-6 p-2">
+                        Dispatched
+                    </span>
+
+                {% elif order.status == "Delivered" %}
+                    <span class="badge bg-success fs-6 p-2">
+                        Delivered
+                    </span>
+
+                {% else %}
+                    <span class="badge bg-secondary fs-6 p-2">
+                        {{ order.status }}
+                    </span>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Order Progress -->
+
+        <div class="track">
+
+            <div class="step
+                {% if order.status in ['Pending', 'Confirmed', 'Dispatched', 'Delivered'] %}
+                    active
+                {% endif %}
+            ">
+                <span class="icon">
+                    <i class="fa fa-receipt"></i>
+                </span>
+
+                <span class="text">
+                    Order Placed
+                </span>
+            </div>
+
+
+            <div class="step
+                {% if order.status in ['Confirmed', 'Dispatched', 'Delivered'] %}
+                    active
+                {% endif %}
+            ">
+                <span class="icon">
+                    <i class="fa fa-check"></i>
+                </span>
+
+                <span class="text">
+                    Confirmed
+                </span>
+            </div>
+
+
+            <div class="step
+                {% if order.status in ['Dispatched', 'Delivered'] %}
+                    active
+                {% endif %}
+            ">
+                <span class="icon">
+                    <i class="fa fa-truck"></i>
+                </span>
+
+                <span class="text">
+                    Dispatched
+                </span>
+            </div>
+
+
+            <div class="step
+                {% if order.status == 'Delivered' %}
+                    active
+                {% endif %}
+            ">
+                <span class="icon">
+                    <i class="fa fa-home"></i>
+                </span>
+
+                <span class="text">
+                    Delivered
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- Order Details -->
+
+        <div class="row mt-4">
+
+            <div class="col-md-6">
+                <h6 class="fw-bold">Order Details</h6>
+
+                <p class="mb-1">
+                    <strong>Order ID:</strong>
+                    #{{ order.id }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Total Amount:</strong>
+                    Rs. {{ order.total_amount }}
+                </p>
+
+                <p class="mb-1">
+                    <strong>Status:</strong>
+                    {{ order.status }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <h6 class="fw-bold">Delivery Address</h6>
+
+                {% if address %}
+
+                    <p class="mb-1">
+                        {{ address.address_line }}
+                    </p>
+
+                    <p class="mb-1">
+                        {{ address.city }}, {{ address.state }}
+                    </p>
+
+                    {% if address.postal_code %}
+                        <p class="mb-1">
+                            {{ address.postal_code }}
+                        </p>
+                    {% endif %}
+
+                {% else %}
+
+                    <p class="text-muted">
+                        Delivery address not available.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% elif request.args.get('order_id') %}
+
+        <div class="alert alert-warning text-center">
+            Order not found.
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<style>
+
+    .tracking-container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .track {
+        position: relative;
+        background-color: #ddd;
+        height: 7px;
+        display: flex;
+        margin-bottom: 60px;
+        margin-top: 50px;
+        border-radius: .25rem;
+    }
+
+    .track .step {
+        flex: 1;
+        position: relative;
+        text-align: center;
+        margin-top: -24px;
+    }
+
+    .track .step .icon {
+        height: 48px;
+        width: 48px;
+        border: 2px solid #ddd;
+        border-radius: 50%;
+        line-height: 45px;
+        background: #f8f9fa;
+        font-size: 18px;
+        color: #adb5bd;
+        display: inline-block;
+        z-index: 10;
+        position: relative;
+    }
+
+    .track .step.active .icon {
+        background: #0d6efd;
+        color: #fff;
+        border-color: #0d6efd;
+    }
+
+    .track .step.active .text {
+        font-weight: 500;
+        color: #000;
+    }
+
+    .track .step .text {
+        display: block;
+        margin-top: 8px;
+        color: #7f8c8d;
+    }
+
+</style>
+
+{% endblock %}
+```
