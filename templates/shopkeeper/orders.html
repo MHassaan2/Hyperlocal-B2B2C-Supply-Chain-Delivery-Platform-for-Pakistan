@@ -16,13 +16,18 @@
             </tr>
         </thead>
         <tbody>
+            {% for order in orders %}
             <tr>
-                <td>#ORD-1001</td>
-                <td>2026-08-19</td>
-                <td>Rs. 360</td>
+                <td>{{ order.id }}</td>
+                <td>{{ order.date }}</td>
+                <td>Rs. {{ order.total_amount }}</td>
                 <td><span class="badge badge-success">Delivered</span></td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
+    {% if not orders %}
+    <p>No orders found.</p>
+    {% endif %}
 </div>
 {% endblock %}
