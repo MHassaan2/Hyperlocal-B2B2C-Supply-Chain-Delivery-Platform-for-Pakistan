@@ -14,20 +14,47 @@
                 <th>Total Amount</th>
                 <th>Status</th>
                 <th>Action</th>
+                <th>Delivery Address</th>
             </tr>
         </thead>
         <tbody>
             {% for order in orders %}
             <tr>
-                <td>{{ order.id }}</td>
+                <td>ORD-{{ order.shopkeeper_id }}-{{ order.id }}</td>
                 <td>{{ order.customer_name }}</td>
                 <td>Rs. {{ order.total_amount }}</td>
-                <td><span class="badge badge-warning">Pending</span></td>
                 <td>
-                   <a href="{{ url_for('update_order', order_id=order.id, status='Dispatched') }}"
-                      class="btn btn-primary btn-sm">
-                      Mark Dispatched
-                    </a>
+                    <span class="badge badge-{{ 'success' if order.status == 'Delivered'
+                        else 'primary' if order.status == 'Dispatched'
+                        else 'info' if order.status == 'Confirmed'
+                        else 'danger' if order.status == 'Cancelled'
+                        else 'warning' }}">
+                    {{ order.status }}
+</span>
+                </td>
+                <td>
+                    {% if order.status == 'Pending' %}
+                        <a href="{{ url_for('update_order', order_id=order.id, status='Confirmed') }}"
+                            class="btn btn-info btn-sm">Confirm</a>
+                        <a href="{{ url_for('update_order', order_id=order.id, status='Cancelled') }}"
+                            class="btn btn-danger btn-sm">Cancel</a>
+                    {% elif order.status == 'Confirmed' %}
+                        <a href="{{ url_for('update_order', order_id=order.id, status='Dispatched') }}"
+                           class="btn btn-primary btn-sm">Mark Dispatched</a>
+                        <a href="{{ url_for('update_order', order_id=order.id, status='Cancelled') }}"
+                           class="btn btn-danger btn-sm">Cancel</a>
+                    {% elif order.status == 'Dispatched' %}
+                        <a href="{{ url_for('update_order', order_id=order.id, status='Delivered') }}"
+                           class="btn btn-success btn-sm">Mark Delivered</a>
+                        <a href="{{ url_for('update_order', order_id=order.id, status='Cancelled') }}"
+                           class="btn btn-danger btn-sm">Cancel</a>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ order.address_line }}, {{ order.city }}, {{ order.state }}
+                    {% if order.postal_code %} - {{ order.postal_code }}{% endif %}
                 </td>
             </tr>
             {% endfor %}

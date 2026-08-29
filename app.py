@@ -1,3 +1,4 @@
+import re
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.database import get_db_connection
@@ -7,10 +8,7 @@ app = Flask(__name__)
 
 app.config["SECRET_KEY"] = "hyperlocal-secret-key"
 
-
-@app.route("/")
-def home():
-    return render_template("base.html")
+import re
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -19,6 +17,23 @@ def register():
         email = request.form["email"]
         password = request.form["password"]
         role = request.form["role"]
+
+        # Password validation
+        errors = []
+        if len(password) < 8:
+            errors.append("Password must be at least 8 characters long.")
+        if not re.search(r"[A-Z]", password):
+            errors.append("Password must contain at least one uppercase letter.")
+        if not re.search(r"[0-9]", password):
+            errors.append("Password must contain at least one number.")
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=~`\[\]\\/;']", password):
+            errors.append("Password must contain at least one special character.")
+
+        if errors:
+            for err in errors:
+                flash(err, "error")
+            return render_template("register.html")
+
         connection = get_db_connection()
         hashed_password = generate_password_hash(password)
         try:
@@ -63,6 +78,12 @@ def is_logged_in():
 
 def has_role(role):
     return is_logged_in() and session.get("user_role") == role
+
+@app.route("/")
+def home():
+    if is_logged_in():
+        return redirect(url_for("dashboard"))
+    return render_template("base.html")
 
 
 @app.route("/dashboard")
@@ -226,10 +247,18 @@ def wholesaler_orders():
         return redirect(url_for("login"))
     connection = get_db_connection()
     orders = connection.execute("""
-        SELECT *
+       SELECT
+            orders.*,
+            users.name AS customer_name,
+            addresses.address_line,
+            addresses.city,
+            addresses.state,
+            addresses.postal_code
         FROM orders
-        WHERE wholesaler_id = ?
-        ORDER BY id DESC
+        JOIN users ON orders.shopkeeper_id = users.id
+        JOIN addresses ON orders.address_id = addresses.id
+        WHERE orders.wholesaler_id = ?
+        ORDER BY orders.id DESC
     """, (session["user_id"],)).fetchall()
     if not orders:
         flash("No orders found.", "info")
@@ -238,6 +267,52 @@ def wholesaler_orders():
         "wholesaler/incoming_orders.html",
         orders=orders
     )
+@app.route("/wholesaler/update_order/<int:order_id>/<status>")
+def update_order(order_id, status):
+    if not has_role("Wholesaler"):
+        flash("Access denied.", "error")
+        return redirect(url_for("login"))
+
+    allowed_statuses = ["Pending","Confirmed", "Dispatched", "Delivered", "Cancelled"]
+    if status not in allowed_statuses:
+        flash("Invalid status.", "error")
+        return redirect(url_for("wholesaler_orders"))
+
+    connection = get_db_connection()
+    try:
+        order = connection.execute("""
+            SELECT id, status FROM orders
+            WHERE id = ? AND wholesaler_id = ?
+        """, (order_id, session["user_id"])).fetchone()
+        if not order:
+            flash("Order not found.", "error")
+            return redirect(url_for("wholesaler_orders"))
+
+        # Restore stock if cancelling an order that hadn't already been cancelled
+        if status == "Cancelled" and order["status"] != "Cancelled":
+            items = connection.execute("""
+                SELECT product_id, quantity FROM order_items
+                WHERE order_id = ?
+            """, (order_id,)).fetchall()
+            for item in items:
+                connection.execute("""
+                    UPDATE products SET stock = stock + ?
+                    WHERE id = ?
+                """, (item["quantity"], item["product_id"]))
+
+        connection.execute("""
+            UPDATE orders SET status = ?
+            WHERE id = ? AND wholesaler_id = ?
+        """, (status, order_id, session["user_id"]))
+        connection.commit()
+        flash(f"Order #{order_id} marked as {status}.", "success")
+    except Exception as e:
+        connection.rollback()
+        flash("Failed to update order: " + str(e), "error")
+    finally:
+        connection.close()
+    return redirect(url_for("wholesaler_orders"))
+
 @app.route("/shopkeeper/orders")
 def shopkeeper_orders():
     if not has_role("Shopkeeper"):
@@ -401,7 +476,7 @@ def checkout():
             """, (session["user_id"],))
             connection.commit()
             flash(
-                f"Order #{order_id} placed successfully!",
+                f"Order #ORD-{session['user_id']}-{order_id} placed successfully!",
                 "success"
             )
             return redirect(url_for("shopkeeper_orders"))
@@ -592,6 +667,35 @@ def remove_from_cart(cart_id):
     finally:
         connection.close()
     return redirect(url_for("shopkeeper_cart"))
+
+@app.route("/track-order")
+def track_order():
+    order = None
+    address = None
+    raw_input = request.args.get("order_id")
+    if raw_input:
+        match = re.match(r"^ORD-(\d+)-(\d+)$", raw_input, re.IGNORECASE)
+        if match:
+            shopkeeper_id, order_id = match.groups()
+            connection = get_db_connection()
+            try:
+                order = connection.execute("""
+                    SELECT * FROM orders
+                    WHERE id = ? AND shopkeeper_id = ?
+                """, (order_id, shopkeeper_id)).fetchone()
+
+                if order:
+                    address = connection.execute("""
+                        SELECT * FROM addresses WHERE id = ?
+                    """, (order["address_id"],)).fetchone()
+            finally:
+                connection.close()
+
+    return render_template(
+        "shopkeeper/order-tracking.html",
+        order=order,
+        address=address
+    )
 
 @app.route("/logout")
 def logout():

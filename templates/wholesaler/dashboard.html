@@ -5,7 +5,7 @@
 {% block content %}
 <div class="dashboard-container">
     <h2>Wholesaler Dashboard</h2>
-    <p class="welcome-msg">Welcome, Wholesaler!</p>
+    <p class="welcome-msg">Welcome, {{ session.get('user_name') }}!</p>
 
     <div class="dashboard-actions">
         <a href="{{ url_for('wholesaler_products') }}" class="btn btn-primary">My Products</a>

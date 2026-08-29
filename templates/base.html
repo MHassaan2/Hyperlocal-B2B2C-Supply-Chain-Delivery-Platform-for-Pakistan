@@ -9,16 +9,31 @@
 </head>
 
 <body>
-
   <nav>
     <div class="brand">
       <a href="/" style="font-size: 1.25rem; font-weight: bold;">Hyperlocal Platform</a>
     </div>
     <div class="nav-links">
       <a href="{{ url_for('home') }}">Home</a>
-      <a href="{{ url_for('wholesaler_products') }}">Products</a>
-      <a href="{{ url_for('login') }}">Login</a>
-      <a href="{{ url_for('register') }}">Register</a>
+      <a href="{{ url_for('track_order') }}">Track Order</a>
+
+      {% if session.get('user_id') %}
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+
+        {% if session.get('user_role') == 'Wholesaler' %}
+          <a href="{{ url_for('wholesaler_products') }}">My Products</a>
+          <a href="{{ url_for('add_product') }}">Add Product</a>
+          <a href="{{ url_for('wholesaler_orders') }}">Incoming Orders</a>
+        {% elif session.get('user_role') == 'Shopkeeper' %}
+          <a href="{{ url_for('shopkeeper_products') }}">Browse Products</a>
+          <a href="{{ url_for('shopkeeper_cart') }}">Cart</a>
+          <a href="{{ url_for('shopkeeper_orders') }}">My Orders</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+      {% endif %}
     </div>
   </nav>
 
