@@ -18,7 +18,7 @@
       <a href="{{ url_for('track_order') }}">Track Order</a>
 
       {% if session.get('user_id') %}
-        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      
 
         {% if session.get('user_role') == 'Wholesaler' %}
           <a href="{{ url_for('wholesaler_products') }}">My Products</a>

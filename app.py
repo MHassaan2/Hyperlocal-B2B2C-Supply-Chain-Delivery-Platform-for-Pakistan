@@ -500,16 +500,35 @@ def shopkeeper_products():
     if not has_role("Shopkeeper"):
         flash("Access denied.", "error")
         return redirect(url_for("login"))
-    connection = get_db_connection()
-    products = connection.execute("""
-        SELECT p.*, u.name AS wholesaler_name
-        FROM products p
-        JOIN users u ON p.wholesaler_id = u.id
-        ORDER BY p.id DESC
-    """).fetchall()
-    connection.close()
-    return render_template("shopkeeper/products.html", products=products)
 
+    search = request.args.get("search", "").strip()
+
+    connection = get_db_connection()
+    if search:
+        like_term = f"%{search}%"
+        products = connection.execute("""
+            SELECT p.*, u.name AS wholesaler_name
+            FROM products p
+            JOIN users u ON p.wholesaler_id = u.id
+            WHERE p.name LIKE ?
+               OR p.category LIKE ?
+               OR p.description LIKE ?
+            ORDER BY p.id DESC
+        """, (like_term, like_term, like_term)).fetchall()
+    else:
+        products = connection.execute("""
+            SELECT p.*, u.name AS wholesaler_name
+            FROM products p
+            JOIN users u ON p.wholesaler_id = u.id
+            ORDER BY p.id DESC
+        """).fetchall()
+    connection.close()
+
+    return render_template(
+        "shopkeeper/products.html",
+        products=products,
+        search=search
+    )
 @app.route("/shopkeeper/cart/add/<int:product_id>", methods=["POST"])
 def add_to_cart(product_id):
     if not has_role("Shopkeeper"):
