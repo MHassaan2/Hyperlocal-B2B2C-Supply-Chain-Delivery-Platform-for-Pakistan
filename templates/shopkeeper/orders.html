@@ -12,6 +12,7 @@
                 <th>Order ID</th>
                 <th>Date</th>
                 <th>Total Amount</th>
+                <th>Wholesaler</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -21,6 +22,10 @@
                 <td>ORD-{{ order.shopkeeper_id }}-{{ order.id }}</td>
                 <td>{{ order.created_at }}</td>
                 <td>Rs. {{ order.total_amount }}</td>
+                <td>{{ order.wholesaler_name }}
+                        {% if order.wholesaler_phone %}
+                        <br><small class="text-muted">{{ order.wholesaler_phone }}</small>
+                    {% endif %}</td>
                 <td>
  <span class="badge badge-{{ 'warning' if order.status == 'Pending'
                         else 'danger' if order.status == 'Cancelled'

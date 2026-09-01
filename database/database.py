@@ -17,6 +17,8 @@ def create_user_table():
             email TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
             role TEXT NOT NULL,
+            phone TEXT NOT NULL UNIQUE,
+            business_name TEXT,
             created_AT TEXT NOT NULL
         )
     ''')

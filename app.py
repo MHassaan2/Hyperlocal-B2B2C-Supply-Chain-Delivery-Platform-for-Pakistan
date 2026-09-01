@@ -17,6 +17,8 @@ def register():
         email = request.form["email"]
         password = request.form["password"]
         role = request.form["role"]
+        phone = request.form["phone"]
+        business_name = request.form.get("business_name") if role == "Wholesaler" else None
 
         # Password validation
         errors = []
@@ -38,11 +40,13 @@ def register():
         hashed_password = generate_password_hash(password)
         try:
             connection.execute("""
-            INSERT INTO users (name, email, password, role, created_AT) VALUES (?, ?, ?, ?, ?)
+            INSERT INTO users (name, email, password, role, phone, business_name, created_AT) VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (name, 
                   email, 
                   hashed_password, 
-                  role, 
+                  role,
+                  phone,
+                  business_name,
                   datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             connection.commit()
             flash("User registered successfully!", "success")
@@ -250,6 +254,7 @@ def wholesaler_orders():
        SELECT
             orders.*,
             users.name AS customer_name,
+            users.phone AS customer_phone,
             addresses.address_line,
             addresses.city,
             addresses.state,
@@ -267,6 +272,7 @@ def wholesaler_orders():
         "wholesaler/incoming_orders.html",
         orders=orders
     )
+
 @app.route("/wholesaler/update_order/<int:order_id>/<status>")
 def update_order(order_id, status):
     if not has_role("Wholesaler"):
@@ -320,10 +326,13 @@ def shopkeeper_orders():
         return redirect(url_for("login"))
     connection = get_db_connection()
     orders = connection.execute("""
-        SELECT *
+        SELECT orders.*,
+               COALESCE(users.business_name, users.name) AS wholesaler_name,
+               users.phone AS wholesaler_phone
         FROM orders
-        WHERE shopkeeper_id = ?
-        ORDER BY id DESC
+        JOIN users ON orders.wholesaler_id = users.id
+        WHERE orders.shopkeeper_id = ?
+        ORDER BY orders.id DESC
     """, (session["user_id"],)).fetchall()
     connection.close()
     return render_template(
@@ -507,7 +516,9 @@ def shopkeeper_products():
     if search:
         like_term = f"%{search}%"
         products = connection.execute("""
-            SELECT p.*, u.name AS wholesaler_name
+            SELECT p.*,
+                   COALESCE(u.business_name, u.name) AS wholesaler_name,
+                   u.phone AS wholesaler_phone
             FROM products p
             JOIN users u ON p.wholesaler_id = u.id
             WHERE p.name LIKE ?
@@ -517,7 +528,9 @@ def shopkeeper_products():
         """, (like_term, like_term, like_term)).fetchall()
     else:
         products = connection.execute("""
-            SELECT p.*, u.name AS wholesaler_name
+            SELECT p.*,
+                   COALESCE(u.business_name, u.name) AS wholesaler_name,
+                   u.phone AS wholesaler_phone
             FROM products p
             JOIN users u ON p.wholesaler_id = u.id
             ORDER BY p.id DESC
@@ -529,6 +542,7 @@ def shopkeeper_products():
         products=products,
         search=search
     )
+
 @app.route("/shopkeeper/cart/add/<int:product_id>", methods=["POST"])
 def add_to_cart(product_id):
     if not has_role("Shopkeeper"):

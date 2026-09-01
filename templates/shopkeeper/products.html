@@ -42,6 +42,12 @@
                     <strong>Wholesaler:</strong>
                     {{ product.wholesaler_name }}
                 </p>
+                {% if product.wholesaler_phone %}
+                <p>
+                    <strong>Contact:</strong>
+                    <a href="tel:{{ product.wholesaler_phone }}">{{ product.wholesaler_phone }}</a>
+                </p>
+                {% endif %}
                 <!-- Add to Cart -->
                 <form method="POST"
                       action="{{ url_for('add_to_cart', product_id=product.id) }}">
