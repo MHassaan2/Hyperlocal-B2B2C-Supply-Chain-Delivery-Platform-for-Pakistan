@@ -28,8 +28,12 @@
           <a href="{{ url_for('shopkeeper_products') }}">Browse Products</a>
           <a href="{{ url_for('shopkeeper_cart') }}">Cart</a>
           <a href="{{ url_for('shopkeeper_orders') }}">My Orders</a>
+        {% elif session.get('user_role') == 'Admin' %}
+          <a href="{{ url_for('admin_users') }}">Users</a>
+          <a href="{{ url_for('admin_wholesalers') }}">Wholesalers</a>
+          <a href="{{ url_for('admin_products') }}">Products</a>
+          <a href="{{ url_for('admin_orders') }}">Orders</a>
         {% endif %}
-        <a href="{{ url_for('logout') }}">Logout</a>
       {% else %}
         <a href="{{ url_for('login') }}">Login</a>
         <a href="{{ url_for('register') }}">Register</a>

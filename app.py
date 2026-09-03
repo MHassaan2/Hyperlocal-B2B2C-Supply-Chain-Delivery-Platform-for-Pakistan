@@ -78,6 +78,9 @@ def login():
         """, (email,)).fetchone()
         connection.close()
         if user and check_password_hash(user["password"], password):
+            if user["role"] == "Wholesaler" and not user["is_active"]:
+                flash("Your account has been disabled. Contact support.", "error")
+                return render_template("login.html")
             session["user_id"] = user["id"]
             session["user_name"] = user["name"]
             session["user_role"] = user["role"]
@@ -86,7 +89,6 @@ def login():
         else:
             flash("Invalid email or password.", "error")
     return render_template("login.html")
-
 def is_logged_in():
     return "user_id" in session
 
@@ -115,6 +117,170 @@ def dashboard():
     else:
         flash("Invalid user role.", "error")
         return redirect(url_for("login"))
+
+@app.route("/admin/users")
+def admin_users():
+    if not has_role("Admin"):
+        flash("Access denied.", "error")
+        return redirect(url_for("login"))
+    connection = get_db_connection()
+    users = connection.execute("""
+        SELECT id, name, email, role, phone, business_name, city_name, is_active
+        FROM users
+        WHERE role != 'Admin'
+        ORDER BY id DESC
+    """).fetchall()
+    connection.close()
+    return render_template("admin/users.html", users=users)
+
+@app.route("/admin/wholesalers")
+def admin_wholesalers():
+    if not has_role("Admin"):
+        flash("Access denied.", "error")
+        return redirect(url_for("login"))
+    connection = get_db_connection()
+    wholesalers = connection.execute("""
+        SELECT id, name, email,
+               COALESCE(business_name, name) AS business_name,
+               is_active
+        FROM users
+        WHERE role = 'Wholesaler'
+        ORDER BY id DESC
+    """).fetchall()
+    connection.close()
+    return render_template("admin/wholesalers.html", wholesalers=wholesalers)
+
+
+@app.route("/admin/wholesaler/toggle/<int:user_id>", methods=["POST"])
+def admin_toggle_wholesaler(user_id):
+    if not has_role("Admin"):
+        flash("Access denied.", "error")
+        return redirect(url_for("login"))
+    connection = get_db_connection()
+    try:
+        wholesaler = connection.execute("""
+            SELECT is_active FROM users WHERE id = ? AND role = 'Wholesaler'
+        """, (user_id,)).fetchone()
+        if not wholesaler:
+            flash("Wholesaler not found.", "error")
+            return redirect(url_for("admin_wholesalers"))
+        new_status = 0 if wholesaler["is_active"] else 1
+        connection.execute("UPDATE users SET is_active = ? WHERE id = ?", (new_status, user_id))
+        connection.commit()
+        flash("Wholesaler status updated.", "success")
+    except Exception as e:
+        connection.rollback()
+        flash("Failed to update status: " + str(e), "error")
+    finally:
+        connection.close()
+    return redirect(url_for("admin_wholesalers"))
+
+@app.route("/admin/user/delete/<int:user_id>", methods=["POST"])
+def admin_delete_user(user_id):
+    if not has_role("Admin"):
+        flash("Access denied.", "error")
+        return redirect(url_for("login"))
+    connection = get_db_connection()
+    try:
+        user = connection.execute("SELECT role FROM users WHERE id = ?", (user_id,)).fetchone()
+        if not user:
+            flash("User not found.", "error")
+            return redirect(url_for("admin_users"))
+        if user["role"] == "Admin":
+            flash("Cannot delete an admin account.", "error")
+            return redirect(url_for("admin_users"))
+
+        if user["role"] == "Shopkeeper":
+            # Delete order_items tied to this shopkeeper's orders
+            connection.execute("""
+                DELETE FROM order_items
+                WHERE order_id IN (SELECT id FROM orders WHERE shopkeeper_id = ?)
+            """, (user_id,))
+            # Delete this shopkeeper's orders
+            connection.execute("DELETE FROM orders WHERE shopkeeper_id = ?", (user_id,))
+            # Delete their cart
+            connection.execute("DELETE FROM cart WHERE shopkeeper_id = ?", (user_id,))
+            # Delete their saved addresses
+            connection.execute("DELETE FROM addresses WHERE user_id = ?", (user_id,))
+
+        elif user["role"] == "Wholesaler":
+            # Delete order_items tied to this wholesaler's orders
+            connection.execute("""
+                DELETE FROM order_items
+                WHERE order_id IN (SELECT id FROM orders WHERE wholesaler_id = ?)
+            """, (user_id,))
+            # Delete orders placed with this wholesaler
+            connection.execute("DELETE FROM orders WHERE wholesaler_id = ?", (user_id,))
+            # Delete cart items referencing this wholesaler's products
+            connection.execute("""
+                DELETE FROM cart
+                WHERE product_id IN (SELECT id FROM products WHERE wholesaler_id = ?)
+            """, (user_id,))
+            # Delete their products
+            connection.execute("DELETE FROM products WHERE wholesaler_id = ?", (user_id,))
+
+        # Finally delete the user
+        connection.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        connection.commit()
+        flash("User and all related data deleted successfully.", "success")
+    except Exception as e:
+        connection.rollback()
+        flash("Failed to delete user: " + str(e), "error")
+    finally:
+        connection.close()
+    return redirect(url_for("admin_users"))
+
+@app.route("/admin/products")
+def admin_products():
+    if not has_role("Admin"):
+        flash("Access denied.", "error")
+        return redirect(url_for("login"))
+    connection = get_db_connection()
+    products = connection.execute("""
+        SELECT p.id, p.name, p.price,
+               COALESCE(u.business_name, u.name) AS wholesaler_name
+        FROM products p
+        JOIN users u ON p.wholesaler_id = u.id
+        ORDER BY p.id DESC
+    """).fetchall()
+    connection.close()
+    return render_template("admin/products.html", products=products)
+
+
+@app.route("/admin/product/delete/<int:product_id>", methods=["POST"])
+def admin_delete_product(product_id):
+    if not has_role("Admin"):
+        flash("Access denied.", "error")
+        return redirect(url_for("login"))
+    connection = get_db_connection()
+    try:
+        connection.execute("DELETE FROM products WHERE id = ?", (product_id,))
+        connection.commit()
+        flash("Product removed successfully.", "success")
+    except Exception as e:
+        connection.rollback()
+        flash("Failed to remove product: " + str(e), "error")
+    finally:
+        connection.close()
+    return redirect(url_for("admin_products"))
+
+@app.route("/admin/orders")
+def admin_orders():
+    if not has_role("Admin"):
+        flash("Access denied.", "error")
+        return redirect(url_for("login"))
+    connection = get_db_connection()
+    orders = connection.execute("""
+        SELECT orders.id, orders.total_amount, orders.status,
+               shopkeeper.name AS shopkeeper_name,
+               COALESCE(wholesaler.business_name, wholesaler.name) AS wholesaler_name
+        FROM orders
+        JOIN users AS shopkeeper ON orders.shopkeeper_id = shopkeeper.id
+        JOIN users AS wholesaler ON orders.wholesaler_id = wholesaler.id
+        ORDER BY orders.id DESC
+    """).fetchall()
+    connection.close()
+    return render_template("admin/orders.html", orders=orders)
 
 @app.route("/wholesaler/add-product", methods=["GET", "POST"])
 def add_product():

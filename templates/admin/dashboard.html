@@ -7,15 +7,15 @@
 <div class="dashboard-container">
     <h2>Admin Dashboard</h2>
     <p class="welcome-msg">
-    Welcome, {{ session["name"] }}!
+    Welcome, {{ session["user_name"] }}!
     </p>
 
     <div class="dashboard-actions">
-        <a href="/admin/users" class="btn btn-primary">Manage Users</a>
-        <a href="/admin/wholesalers" class="btn btn-secondary">Manage Wholesalers</a>
-        <a href="/admin/products" class="btn btn-info">Manage Products</a>
-        <a href="/admin/orders" class="btn btn-warning">Manage Orders</a>
-        <a href="/logout" class="btn btn-danger">Logout</a>
+        <a href="{{ url_for('admin_users') }}" class="btn btn-primary">Manage Users</a>
+        <a href="{{ url_for('admin_wholesalers') }}" class="btn btn-secondary">Manage Wholesalers</a>
+        <a href="{{ url_for('admin_products') }}" class="btn btn-info">Manage Products</a>
+        <a href="{{ url_for('admin_orders') }}" class="btn btn-warning">Manage Orders</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
     </div>
 </div>
 {% endblock %}

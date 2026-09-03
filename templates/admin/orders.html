@@ -5,8 +5,8 @@
 {% block content %}
 <div class="admin-container">
     <h2>Manage Orders</h2>
-
-    <table class="data-table">
+    {% if orders %}
+    <table class="data-table"> 
         <thead>
             <tr>
                 <th>Order ID</th>
@@ -17,14 +17,25 @@
             </tr>
         </thead>
         <tbody>
+            {% for order in orders %}
             <tr>
-                <td>#ORD-1001</td>
-                <td>Ali Ahmed</td>
-                <td>Metro Wholesalers</td>
-                <td>Rs. 360</td>
-                <td><span class="badge badge-success">Delivered</span></td>
+                <td>#ORD-{{ order.id }}</td>
+                <td>{{ order.shopkeeper_name }}</td>
+                <td>{{ order.wholesaler_name }}</td>
+                <td>Rs. {{ order.total_amount }}</td>
+                <td><span class="badge badge-{{ 'success' if order.status == 'Delivered'
+                                            else 'primary' if order.status == 'Dispatched'
+                                            else 'info' if order.status == 'Confirmed'
+                                            else 'danger' if order.status == 'Cancelled'
+                                            else 'warning' }}">
+                        {{ order.status }}
+                    </span></td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <p>No orders found.</p>
+    {% endif %}
 </div>
 {% endblock %}

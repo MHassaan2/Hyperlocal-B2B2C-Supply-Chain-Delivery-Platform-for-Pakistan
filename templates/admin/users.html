@@ -5,7 +5,7 @@
 {% block content %}
 <div class="admin-container">
     <h2>Manage Users</h2>
-
+     {% if users %}
     <table class="data-table">
         <thead>
             <tr>
@@ -17,16 +17,26 @@
             </tr>
         </thead>
         <tbody>
+            {% for user in users %}
             <tr>
-                <td>1</td>
-                <td>Ali Ahmed</td>
-                <td>ali@example.com</td>
-                <td>Shopkeeper</td>
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
                 <td>
-                    <a href="/admin/user/delete/1" class="btn btn-danger btn-sm">Delete</a>
+                    <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Delete this user? This cannot be undone.');">
+                            Delete
+                        </button>
+                    </form>
                 </td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <p>No users found.</p>
+    {% endif %}
 </div>
 {% endblock %}

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="admin-container">
     <h2>Manage Products</h2>
-
+    {% if products %}
     <table class="data-table">
         <thead>
             <tr>
@@ -17,16 +17,26 @@
             </tr>
         </thead>
         <tbody>
+            {% for product in products %}
             <tr>
-                <td>101</td>
-                <td>Sugar 1kg</td>
-                <td>Rs. 180</td>
-                <td>Metro Wholesalers</td>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>Rs. {{ product.price }}</td>
+                <td>{{ product.wholesaler_name }}</td>
                 <td>
-                    <a href="/admin/product/delete/101" class="btn btn-danger btn-sm">Remove</a>
+                    <form method="POST" action="{{ url_for('admin_delete_product', product_id=product.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Remove this product?');">
+                            Remove
+                        </button>
+                    </form>
                 </td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <p>No products found.</p>
+    {% endif %}
 </div>
 {% endblock %}

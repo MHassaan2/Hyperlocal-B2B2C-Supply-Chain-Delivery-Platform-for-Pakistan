@@ -1,11 +1,9 @@
 {% extends "base.html" %}
-
 {% block title %}Manage Wholesalers - Admin{% endblock %}
-
 {% block content %}
 <div class="admin-container">
     <h2>Manage Wholesalers</h2>
-
+    {% if wholesalers %}
     <table class="data-table">
         <thead>
             <tr>
@@ -17,16 +15,33 @@
             </tr>
         </thead>
         <tbody>
+            {% for w in wholesalers %}
             <tr>
-                <td>1</td>
-                <td>Metro Wholesalers</td>
-                <td>metro@example.com</td>
-                <td><span class="badge badge-success">Approved</span></td>
+                <td>{{ w.id }}</td>
+                <td>{{ w.business_name }}</td>
+                <td>{{ w.email }}</td>
                 <td>
-                    <a href="/admin/wholesaler/toggle/1" class="btn btn-warning btn-sm">Disable</a>
+                    {% if w.is_active %}
+                        <span class="badge badge-success">Active</span>
+                    {% else %}
+                        <span class="badge badge-danger">Disabled</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin_toggle_wholesaler', user_id=w.id) }}" style="display:inline;">
+                        {% if w.is_active %}
+                            <button type="submit" class="btn btn-warning btn-sm">Disable</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-success btn-sm">Enable</button>
+                        {% endif %}
+                    </form>
                 </td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <p>No wholesalers found.</p>
+    {% endif %}
 </div>
 {% endblock %}

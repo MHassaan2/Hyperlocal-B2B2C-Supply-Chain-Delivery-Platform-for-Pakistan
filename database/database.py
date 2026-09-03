@@ -20,6 +20,7 @@ def create_user_table():
             phone TEXT NOT NULL UNIQUE,
             business_name TEXT,
             city_name TEXT,
+            is_active BOOLEAN DEFAULT 1,
             created_AT TEXT NOT NULL
         )
     ''')
