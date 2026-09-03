@@ -1,14 +1,22 @@
 import re
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from database.database import get_db_connection
 from datetime import datetime
+
+
 
 app = Flask(__name__)
 
 app.config["SECRET_KEY"] = "hyperlocal-secret-key"
 
-import re
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+UPLOAD_FOLDER = os.path.join("static", "images", "products")
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -19,6 +27,7 @@ def register():
         role = request.form["role"]
         phone = request.form["phone"]
         business_name = request.form.get("business_name") if role == "Wholesaler" else None
+        city_name = request.form.get("city_name") if role == "Wholesaler" else None
 
         # Password validation
         errors = []
@@ -40,13 +49,14 @@ def register():
         hashed_password = generate_password_hash(password)
         try:
             connection.execute("""
-            INSERT INTO users (name, email, password, role, phone, business_name, created_AT) VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO users (name, email, password, role, phone, business_name, city_name, created_AT) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (name, 
                   email, 
                   hashed_password, 
                   role,
                   phone,
                   business_name,
+                  city_name,
                   datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             connection.commit()
             flash("User registered successfully!", "success")
@@ -117,12 +127,22 @@ def add_product():
         price = request.form["price"]
         stock = request.form["stock"]
         category = request.form["category"]
+        # Handle image upload
+        image_filename = None
+        file = request.files.get("image")
+        if file and file.filename:
+            if not allowed_file(file.filename):
+                flash("Invalid image type. Use PNG, JPG, JPEG, or WEBP.", "error")
+                return render_template("wholesaler/add_product.html")
+            ext = file.filename.rsplit(".", 1)[1].lower()
+            image_filename = f"{session['user_id']}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.{ext}"
+            file.save(os.path.join(UPLOAD_FOLDER, image_filename))
         connection = get_db_connection()
         try:
             connection.execute("""
                 INSERT INTO products
-                (wholesaler_id, name, description, price, stock, category, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (wholesaler_id, name, description, price, stock, category, image, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 session["user_id"],
                 name,
@@ -130,6 +150,7 @@ def add_product():
                 price,
                 stock,
                 category,
+                image_filename,
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             ))
             connection.commit()
@@ -183,12 +204,28 @@ def edit_product(product_id):
         price = request.form["price"]
         stock = request.form["stock"]
         category = request.form["category"]
+        image_filename = product["image"]  # keep existing by default
+        file = request.files.get("image")
+        if file and file.filename:
+            if not allowed_file(file.filename):
+                flash("Invalid image type. Use PNG, JPG, JPEG, or WEBP.", "error")
+                connection.close()
+                return render_template("wholesaler/edit_product.html", product=product)
+            ext = file.filename.rsplit(".", 1)[1].lower()
+            image_filename = f"{session['user_id']}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.{ext}"
+            file.save(os.path.join(UPLOAD_FOLDER, image_filename))
+            # Remove old image file if one existed
+            if product["image"]:
+                old_path = os.path.join(UPLOAD_FOLDER, product["image"])
+                if os.path.exists(old_path):
+                    os.remove(old_path)
         try:
             connection.execute("""
                 UPDATE products
                 SET name = ?,
                     description = ?,
                     price = ?,
+                    image = ?,
                     stock = ?,
                     category = ?
                 WHERE id = ? AND wholesaler_id = ?
@@ -196,6 +233,7 @@ def edit_product(product_id):
                 name,
                 description,
                 price,
+                image_filename,
                 stock,
                 category,
                 product_id,
@@ -518,7 +556,8 @@ def shopkeeper_products():
         products = connection.execute("""
             SELECT p.*,
                    COALESCE(u.business_name, u.name) AS wholesaler_name,
-                   u.phone AS wholesaler_phone
+                   u.phone AS wholesaler_phone,
+                   u.city_name AS wholesaler_city
             FROM products p
             JOIN users u ON p.wholesaler_id = u.id
             WHERE p.name LIKE ?
@@ -530,7 +569,8 @@ def shopkeeper_products():
         products = connection.execute("""
             SELECT p.*,
                    COALESCE(u.business_name, u.name) AS wholesaler_name,
-                   u.phone AS wholesaler_phone
+                   u.phone AS wholesaler_phone,
+                   u.city_name AS wholesaler_city
             FROM products p
             JOIN users u ON p.wholesaler_id = u.id
             ORDER BY p.id DESC

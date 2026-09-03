@@ -510,3 +510,8 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+.description-cell {
+    max-width: 250px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}

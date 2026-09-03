@@ -12,6 +12,7 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Image</th>
                 <th>Product</th>
                 <th>Price</th>
                 <th>Description</th>
@@ -24,9 +25,17 @@
             {% for product in products %}
             <tr>
                 <td>{{ product.id }}</td>
+                <td>
+                    {% if product.image %}
+                        <img src="{{ url_for('static', filename='images/products/' + product.image) }}"
+                        alt="{{ product.name }}" class="product-image" style="max-width: 250px; border-radius: 8px;">
+                    {% else %}
+                        No Image
+                    {% endif %}
+                </td>
                 <td>{{ product.name }}</td>
                 <td>Rs. {{ product.price }}</td>
-                <td>{{ product.description }}</td>
+                <td class="description-cell">{{ product.description }}</td>
                 <td>{{ product.stock }}</td>
                 <td>{{ product.category }}</td>
                 <td>

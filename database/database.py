@@ -19,6 +19,7 @@ def create_user_table():
             role TEXT NOT NULL,
             phone TEXT NOT NULL UNIQUE,
             business_name TEXT,
+            city_name TEXT,
             created_AT TEXT NOT NULL
         )
     ''')
@@ -32,6 +33,7 @@ def create_products_table():
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             wholesaler_id INTEGER NOT NULL,
+            image TEXT,
             name TEXT NOT NULL,
             description TEXT NOT NULL,
             price REAL NOT NULL,

@@ -24,11 +24,17 @@
         {% if products %}
             {% for product in products %}
             <div class="card">
+                {% if product.image %}
+                    <img src="{{ url_for('static', filename='images/products/' + product.image) }}"
+                    alt="{{ product.name }}" class="card-img-top" style="max-width: 250px; height: auto;">
+                {% else %}
+                    <div class="no-image">No Image</div>
+                {% endif %}
                 <h3>
                     {{ product.name }}
                 </h3>
-                <p>
-                    {{ product.description }}
+                <p class="description-cell">
+                    <strong>Description:</strong>{{ product.description }}
                 </p>
                 <p>
                     <strong>Price:</strong>
@@ -46,6 +52,12 @@
                 <p>
                     <strong>Contact:</strong>
                     <a href="tel:{{ product.wholesaler_phone }}">{{ product.wholesaler_phone }}</a>
+                </p>
+                {% endif %}
+                {% if product.wholesaler_city %}
+                <p>
+                    <strong>City:</strong>
+                    {{ product.wholesaler_city }}
                 </p>
                 {% endif %}
                 <!-- Add to Cart -->
