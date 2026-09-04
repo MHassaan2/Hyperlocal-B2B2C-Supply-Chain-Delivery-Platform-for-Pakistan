@@ -180,9 +180,11 @@ http://127.0.0.1:5000
 ```
  
 ## 📸 Screenshots
-| 🔐 Login | 🛡️ Admin | 📦 Wholesaler | 🛒 Shopkeeper |
-|---------------|-----------------|-----------------|
-| ![Screenshot 1](screenshots/screenshot1.png) | ![Screenshot 2](screenshots/screenshot2.png) | ![Screenshot 3](screenshots/screenshot3.png) | ![Screenshot 4](screenshots/screenshot4.png) |
+| 🔐 Login | 🛡️ Admin |
+|---------------|-----------------|
+| ![Screenshot 1](screenshots/screenshot1.png) | ![Screenshot 2](screenshots/screenshot2.png) |
+| 📦 Wholesaler | 🛒 Shopkeeper |
+| ![Screenshot 3](screenshots/screenshot3.png) | ![Screenshot 4](screenshots/screenshot4.png) |
 
 ## 🎓 Academic Information
  
