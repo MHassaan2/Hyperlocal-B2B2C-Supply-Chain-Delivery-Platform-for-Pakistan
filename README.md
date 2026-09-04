@@ -180,27 +180,17 @@ http://127.0.0.1:5000
 ```
  
 ## 📸 Screenshots
- 
-Screenshots of the following pages can be added here:
- 
-- Home Page
-- Login
-- Registration
-- Shopkeeper Dashboard
-- Product Browsing
-- Shopping Cart
-- Checkout
-- Order Tracking
-- Wholesaler Dashboard
-- Product Management
-- Admin Dashboard
-- Admin: Manage Users / Wholesalers / Products / Orders
+| 🔐 Login | 🛡️ Admin | 📦 Wholesaler | 🛒 Shopkeeper |
+|---------------|-----------------|-----------------|
+| ![Screenshot 1](screenshots/screenshot1.png) | ![Screenshot 2](screenshots/screenshot2.png) | ![Screenshot 3](screenshots/screenshot3.png) | ![Screenshot 4](screenshots/screenshot4.png) |
+
 ## 🎓 Academic Information
  
 - **Course:** Python Programming
 - **Instructor:** Abdullah Nasir
 - **Organization:** iSeeWaves
 - **Purpose:** Academic Project
+  
 **Team Members**
  
 - Muhammad Hassaan
