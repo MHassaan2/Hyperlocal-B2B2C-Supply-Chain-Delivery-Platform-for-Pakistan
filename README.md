@@ -97,7 +97,6 @@ Main database tables:
 - SQLite
 - HTML
 - CSS
-- JavaScript
 - Jinja2
 - Git
 - GitHub
