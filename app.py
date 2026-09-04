@@ -2,7 +2,6 @@ import re
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
 from database.database import get_db_connection
 from datetime import datetime
 
@@ -10,13 +9,23 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+# Used by Flask to protect sessions and flash messages.
 app.config["SECRET_KEY"] = "hyperlocal-secret-key"
 
+# Product image upload settings.
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 UPLOAD_FOLDER = os.path.join("static", "images", "products")
 
 def allowed_file(filename):
+    # Allow uploads only when their extension is in the approved list.
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    # Render the custom template when no route matches the requested URL.
+    return render_template("404.html"), 404
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -46,6 +55,7 @@ def register():
             return render_template("register.html")
 
         connection = get_db_connection()
+        # Store a hash rather than the user's plain-text password.
         hashed_password = generate_password_hash(password)
         try:
             connection.execute("""
@@ -78,9 +88,11 @@ def login():
         """, (email,)).fetchone()
         connection.close()
         if user and check_password_hash(user["password"], password):
+            # Disabled wholesalers cannot sign in.
             if user["role"] == "Wholesaler" and not user["is_active"]:
                 flash("Your account has been disabled. Contact support.", "error")
                 return render_template("login.html")
+            # Keep the authenticated user's details in the session for access checks.
             session["user_id"] = user["id"]
             session["user_name"] = user["name"]
             session["user_role"] = user["role"]
@@ -90,9 +102,11 @@ def login():
             flash("Invalid email or password.", "error")
     return render_template("login.html")
 def is_logged_in():
+    # A user is authenticated when their ID is present in the session.
     return "user_id" in session
 
 def has_role(role):
+    # Reusable role check used to protect admin, wholesaler, and shopkeeper routes.
     return is_logged_in() and session.get("user_role") == role
 
 @app.route("/")
@@ -107,6 +121,7 @@ def dashboard():
     if "user_id" not in session:
         flash("Please login first.", "error")
         return redirect(url_for("login"))
+    # Direct each authenticated role to its own dashboard.
     role = session["user_role"]
     if role == "Shopkeeper":
         return render_template("shopkeeper/dashboard.html")
@@ -190,6 +205,7 @@ def admin_delete_user(user_id):
             flash("Cannot delete an admin account.", "error")
             return redirect(url_for("admin_users"))
 
+        # Delete related records first to avoid orphaned data.
         if user["role"] == "Shopkeeper":
             # Delete order_items tied to this shopkeeper's orders
             connection.execute("""
@@ -301,6 +317,7 @@ def add_product():
                 flash("Invalid image type. Use PNG, JPG, JPEG, or WEBP.", "error")
                 return render_template("wholesaler/add_product.html")
             ext = file.filename.rsplit(".", 1)[1].lower()
+            # Generate a unique stored filename instead of using the uploaded name.
             image_filename = f"{session['user_id']}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.{ext}"
             file.save(os.path.join(UPLOAD_FOLDER, image_filename))
         connection = get_db_connection()
@@ -378,6 +395,7 @@ def edit_product(product_id):
                 connection.close()
                 return render_template("wholesaler/edit_product.html", product=product)
             ext = file.filename.rsplit(".", 1)[1].lower()
+            # Replace the stored image with a new uniquely named file.
             image_filename = f"{session['user_id']}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.{ext}"
             file.save(os.path.join(UPLOAD_FOLDER, image_filename))
             # Remove old image file if one existed
@@ -483,6 +501,7 @@ def update_order(order_id, status):
         flash("Access denied.", "error")
         return redirect(url_for("login"))
 
+    # Only allow the order states supported by the application workflow.
     allowed_statuses = ["Pending","Confirmed", "Dispatched", "Delivered", "Cancelled"]
     if status not in allowed_statuses:
         flash("Invalid status.", "error")
@@ -568,6 +587,7 @@ def shopkeeper_cart():
         """, (
             session["user_id"],
         )).fetchall()
+        # Calculate the cart total from each product's current price and quantity.
         total_amount = sum(
             item["price"] * item["quantity"]
             for item in cart_items
@@ -631,7 +651,7 @@ def checkout():
             created_at = datetime.now().strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
-            # Create address
+            # Create the delivery address and use its ID on the new order.
             cursor = connection.execute("""
                 INSERT INTO addresses
                 (user_id, state, city, address_line, postal_code, created_at)
@@ -645,7 +665,7 @@ def checkout():
                 created_at
             ))
             address_id = cursor.lastrowid
-            # Create order
+            # Create the order before inserting its individual items.
             cursor = connection.execute("""
                 INSERT INTO orders
                 (shopkeeper_id, wholesaler_id, address_id,
@@ -660,7 +680,7 @@ def checkout():
                 created_at
             ))
             order_id = cursor.lastrowid
-            # Create order items
+            # Save each cart item and reduce its available stock.
             for item in cart_items:
                 connection.execute("""
                     INSERT INTO order_items
@@ -714,6 +734,7 @@ def shopkeeper_products():
         flash("Access denied.", "error")
         return redirect(url_for("login"))
 
+    # An optional search filters products by name, category, or description.
     search = request.args.get("search", "").strip()
 
     connection = get_db_connection()
@@ -913,6 +934,7 @@ def track_order():
     address = None
     raw_input = request.args.get("order_id")
     if raw_input:
+        # Expected public order format: ORD-<shopkeeper_id>-<order_id>.
         match = re.match(r"^ORD-(\d+)-(\d+)$", raw_input, re.IGNORECASE)
         if match:
             shopkeeper_id, order_id = match.groups()
