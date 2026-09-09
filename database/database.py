@@ -18,7 +18,7 @@ def create_user_table():
             password TEXT NOT NULL,
             role TEXT NOT NULL,
             phone TEXT NOT NULL UNIQUE,
-            business_name TEXT,
+            business_name TEXT UNIQUE,
             city_name TEXT,
             is_active BOOLEAN DEFAULT 1,
             created_AT TEXT NOT NULL

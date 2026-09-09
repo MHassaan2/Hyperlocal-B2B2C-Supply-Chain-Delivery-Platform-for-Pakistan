@@ -35,13 +35,15 @@
             <input type="tel" id="phone" name="phone" placeholder="03XXXXXXXXX" required>
         </div>
 
-        <div class="form-group">
-            <label for="business-name">Business Name:</label>
-            <input type="text" id="business_name" name="business_name" placeholder="e.g. Ali Traders" required>
-        </div>
-        <div class="form-group">
-            <label for="city_name">City:</label>
-            <input type="text" id="city_name" name="city_name" placeholder="e.g. Karachi" required>
+        <div id="wholesaler-fields">
+            <div class="form-group">
+                <label for="business_name">Business Name:</label>
+                <input type="text" id="business_name" name="business_name" placeholder="e.g. Ali Traders">
+            </div>
+            <div class="form-group">
+                <label for="city_name">City:</label>
+                <input type="text" id="city_name" name="city_name" placeholder="e.g. Karachi">
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary">Register</button>
@@ -51,4 +53,26 @@
         Already have an account? <a href="/login">Login here</a>
     </p>
 </div>
+
+<script>
+    const roleSelect = document.getElementById("role");
+    const wholesalerFields = document.getElementById("wholesaler-fields");
+    const businessNameInput = document.getElementById("business_name");
+    const cityNameInput = document.getElementById("city_name");
+
+    function toggleWholesalerFields() {
+        const isWholesaler = roleSelect.value === "Wholesaler";
+
+        wholesalerFields.style.display = isWholesaler ? "block" : "none";
+
+
+        businessNameInput.required = isWholesaler;
+        cityNameInput.required = isWholesaler;
+    }
+
+    toggleWholesalerFields();
+
+
+    roleSelect.addEventListener("change", toggleWholesalerFields);
+</script>
 {% endblock %}
