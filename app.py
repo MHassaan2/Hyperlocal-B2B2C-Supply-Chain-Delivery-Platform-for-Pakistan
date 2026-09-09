@@ -72,7 +72,8 @@ def register():
             flash("User registered successfully!", "success")
         except Exception as e:
             connection.rollback()
-            flash(f"Registration failed: "+ str(e), "error")
+            app.logger.error(f"Registration failed: {e}")  
+            flash(f"Registration failed: try again later", "error")
         finally:
             connection.close()
     return render_template("register.html")
@@ -185,7 +186,8 @@ def admin_toggle_wholesaler(user_id):
         flash("Wholesaler status updated.", "success")
     except Exception as e:
         connection.rollback()
-        flash("Failed to update status: " + str(e), "error")
+        app.logger.error(f"Failed to update wholesaler status: {e}")
+        flash("Failed to update status: try again later", "error")
     finally:
         connection.close()
     return redirect(url_for("admin_wholesalers"))
@@ -241,7 +243,8 @@ def admin_delete_user(user_id):
         flash("User and all related data deleted successfully.", "success")
     except Exception as e:
         connection.rollback()
-        flash("Failed to delete user: " + str(e), "error")
+        app.logger.error(f"Failed to delete user: {e}")
+        flash("Failed to delete user: try again later", "error")
     finally:
         connection.close()
     return redirect(url_for("admin_users"))
@@ -275,7 +278,8 @@ def admin_delete_product(product_id):
         flash("Product removed successfully.", "success")
     except Exception as e:
         connection.rollback()
-        flash("Failed to remove product: " + str(e), "error")
+        app.logger.error(f"Failed to remove product: {e}")
+        flash("Failed to remove product: try again later", "error")
     finally:
         connection.close()
     return redirect(url_for("admin_products"))
@@ -341,7 +345,8 @@ def add_product():
             return redirect(url_for("add_product"))
         except Exception as e:
             connection.rollback()
-            flash("Failed to add product: " + str(e), "error")
+            app.logger.error(f"Failed to add product: {e}")
+            flash("Failed to add product: try again later", "error")
         finally:
             connection.close()
     return render_template("wholesaler/add_product.html")
@@ -428,7 +433,8 @@ def edit_product(product_id):
             return redirect(url_for("wholesaler_products"))
         except Exception as e:
             connection.rollback()
-            flash("Failed to update product: " + str(e), "error")
+            app.logger.error(f"Failed to update product: {e}")
+            flash("Failed to update product: try again later", "error")
         finally:
             connection.close()
     else:
@@ -461,7 +467,8 @@ def delete_product(product_id):
         flash("Product deleted successfully!", "success")
     except Exception as e:
         connection.rollback()
-        flash("Failed to delete product: " + str(e), "error")
+        app.logger.error(f"Failed to delete product: {e}")
+        flash("Failed to delete product: try again later", "error")
     finally:
         connection.close()
     return redirect(url_for("wholesaler_products"))
@@ -537,7 +544,8 @@ def update_order(order_id, status):
         flash(f"Order #{order_id} marked as {status}.", "success")
     except Exception as e:
         connection.rollback()
-        flash("Failed to update order: " + str(e), "error")
+        app.logger.error(f"Failed to update order: {e}")
+        flash("Failed to update order: try again later", "error")
     finally:
         connection.close()
     return redirect(url_for("wholesaler_orders"))
@@ -720,8 +728,9 @@ def checkout():
         )
     except Exception as e:
         connection.rollback()
+        app.logger.error(f"Checkout failed: {e}")
         flash(
-            "Checkout failed: " + str(e),
+            "Checkout failed: try again later",
             "error"
         )
         return redirect(url_for("shopkeeper_cart"))
@@ -828,10 +837,8 @@ def add_to_cart(product_id):
         flash("Product added to cart.", "success")
     except Exception as e:
         connection.rollback()
-        flash(
-            "Failed to add product to cart: " + str(e),
-            "error"
-        )
+        app.logger.error(f"Failed to add product to cart: {e}")
+        flash("Failed to add product to cart: try again later", "error")
     finally:
         connection.close()
     return redirect(url_for("shopkeeper_products"))
@@ -881,10 +888,8 @@ def update_cart(cart_id):
         flash("Cart updated successfully.", "success")
     except Exception as e:
         connection.rollback()
-        flash(
-            "Failed to update cart: " + str(e),
-            "error"
-        )
+        app.logger.error(f"Failed to update cart: {e}")
+        flash("Failed to update cart: try again later", "error")
     finally:
         connection.close()
     return redirect(url_for("shopkeeper_cart"))
@@ -920,10 +925,8 @@ def remove_from_cart(cart_id):
         flash("Product removed from cart.", "success")
     except Exception as e:
         connection.rollback()
-        flash(
-            "Failed to remove product: " + str(e),
-            "error"
-        )
+        app.logger.error(f"Failed to remove product from cart: {e}")
+        flash("Failed to remove product: try again later", "error")
     finally:
         connection.close()
     return redirect(url_for("shopkeeper_cart"))
