@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hyperlocal Supply Chain</title>
+  <title>{% block title %}Hyperlocal Supply Chain{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
-  <nav>
+  <nav aria-label="Main navigation">
     <div class="brand">
-      <a href="/" style="font-size: 1.25rem; font-weight: bold;">Hyperlocal Platform</a>
+      <a href="/">Hyperlocal Platform</a>
     </div>
     <div class="nav-links">
       <a href="{{ url_for('home') }}">Home</a>

@@ -586,7 +586,8 @@ def shopkeeper_cart():
                 products.name,
                 products.description,
                 products.price,
-                products.stock
+                products.stock,
+                products.image
             FROM cart
             JOIN products
                 ON cart.product_id = products.id

@@ -26,7 +26,7 @@
             <div class="card">
                 {% if product.image %}
                     <img src="{{ url_for('static', filename='images/products/' + product.image) }}"
-                    alt="{{ product.name }}" class="card-img-top" style="max-width: 250px; height: auto;">
+                    alt="{{ product.name }}" class="card-img-top product-thumbnail">
                 {% else %}
                     <div class="no-image">No Image</div>
                 {% endif %}

@@ -18,7 +18,14 @@
                 <tbody>
                     {% for item in cart_items %}
                     <tr>
-                        <td>
+                        <td class="cart-product-cell">
+                            {% if item.image %}
+                            <img src="{{ url_for('static', filename='images/products/' + item.image) }}"
+                                 alt="{{ item.name }}" class="cart-product-image">
+                            {% else %}
+                            <div class="cart-product-placeholder" aria-hidden="true">{{ item.name[:1] }}</div>
+                            {% endif %}
+                            <div class="cart-product-info">
                             <strong>
                                 {{ item.name }}
                             </strong>
@@ -26,6 +33,7 @@
                             <small class="text-muted">
                                 {{ item.description }}
                             </small>
+                            </div>
                         </td>
                         <td>
                             Rs. {{ "%.2f"|format(item.price) }}
